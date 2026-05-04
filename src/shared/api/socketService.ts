@@ -5,7 +5,7 @@ class SocketService {
     private socket: Socket | null = null;
 
     connect(apiKey: string): void {
-        if (this.socket?.connected) return;
+        if (this.socket) return;
 
         this.socket = io(APP_CONSTANTS.SOCKET_URL, {
             auth: { apiKey },
