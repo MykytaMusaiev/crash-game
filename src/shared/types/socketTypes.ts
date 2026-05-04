@@ -9,7 +9,7 @@ export interface RoundStatePayload {
     endsAt: string | null;
     currentMultiplier: number;
     crashPoint: number | null;
-    yourBet: (Omit<MyBet, "betId"> & { betId?: string }) | null;
+    yourBet: MyBet | null;
     playerCount: number;
 }
 
