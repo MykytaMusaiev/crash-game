@@ -10,6 +10,8 @@ import { CrashChart } from '@/widgets/CrashChart/CrashChart'
 import { PlayersPanel } from '@/widgets/PlayersPanel/PlayersPanel'
 import { HistoryBar } from '@/widgets/HistoryBar/HistoryBar'
 import { StatusBar } from '@/widgets/StatusBar/StatusBar'
+import { useBalance } from '@/shared/hooks/useBalance'
+import { useRecentRounds } from '@/shared/hooks/useRecentRounds'
 
 export function GameLayout() {
   const router = useRouter()
@@ -22,11 +24,16 @@ export function GameLayout() {
     }
   }, [router])
 
-  // Connects the socket and gets the initial balance
+  // Connects the socket and 
   useInitApp()
 
   // Subscribes to all WS events and writes to the gameStore
   useGameSocket()
+
+  // gets the initial balance
+  useBalance()
+  // gets recets rounds result
+  useRecentRounds()
 
   return (
     <div className="flex min-h-screen flex-col">
