@@ -1,4 +1,5 @@
 import type { RoundPhase, MyBet } from "./gameTypes";
+import type { PublicPlayer } from "./playerTypes";
 
 // ─── Server → Client ────────────────────────────────────────────
 
@@ -10,19 +11,19 @@ export interface RoundStatePayload {
     currentMultiplier: number;
     crashPoint: number | null;
     yourBet: MyBet | null;
-    playerCount: number;
+    players: PublicPlayer[];
 }
 
 export interface RoundWaitingPayload {
     roundId: string;
     endsAt: string;
-    playerCount: 0;
+    players: PublicPlayer[];
 }
 
 export interface RoundStartPayload {
     roundId: string;
     startedAt: string;
-    playerCount: number;
+    players: PublicPlayer[];
 }
 
 export interface RoundTickPayload {
@@ -34,7 +35,8 @@ export interface RoundTickPayload {
 export interface RoundCrashPayload {
     roundId: string;
     crashPoint: number;
-    playerCount: number;
+    tier: string;
+    players: PublicPlayer[];
 }
 
 export interface BetPlacedPayload {
@@ -62,6 +64,22 @@ export interface BetLostPayload {
 export interface BetRejectedPayload {
     reason: BetRejectReason;
     message: string;
+}
+
+export interface PlayersBetPayload {
+    username: string;
+    amount: number;
+}
+
+export interface PlayersCashoutPayload {
+    username: string;
+    multiplier: number;
+    winAmount: number;
+}
+
+export interface PlayersLostPayload {
+    username: string;
+    amount: number;
 }
 
 // ─── Client → Server ────────────────────────────────────────────

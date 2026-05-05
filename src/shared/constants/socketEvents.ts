@@ -12,6 +12,9 @@ export const SOCKET_EVENTS = {
     // Client → Server
     BET_PLACE: "bet:place",
     BET_CASHOUT: "bet:cashout",
+    PLAYERS_BET: "players:bet",
+    PLAYERS_CASHOUT: "players:cashout",
+    PLAYERS_LOST: "players:lost",
 } as const;
 
 export type SocketEvent = (typeof SOCKET_EVENTS)[keyof typeof SOCKET_EVENTS];

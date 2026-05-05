@@ -15,8 +15,16 @@ import type {
     BetCashedOutPayload,
     BetLostPayload,
     BetRejectedPayload,
+    PlayersBetPayload,
+    PlayersCashoutPayload,
+    PlayersLostPayload,
 } from "@/shared/types/socketTypes";
+import type {
+    PublicPlayer,
+    RecentRoundsResponse,
+} from "@/shared/types/playerTypes";
 import type { RecentRound } from "@/shared/types/playerTypes";
+import type { RoundTier } from "@/shared/types/gameTypes";
 
 export function useGameSocket() {
     const queryClient = useQueryClient();
@@ -31,7 +39,7 @@ export function useGameSocket() {
             store.setEndsAt(e.endsAt ? new Date(e.endsAt) : null);
             store.setCrashPoint(e.crashPoint);
             store.setMyBet(e.yourBet);
-            store.setPlayerCount(e.playerCount);
+            store.setPlayers(e.players);
         });
 
         socketService.on<RoundWaitingPayload>(
@@ -45,7 +53,7 @@ export function useGameSocket() {
                 store.setMultiplier(1.0);
                 store.setCrashPoint(null);
                 store.setMyBet(null);
-                store.setPlayerCount(0);
+                store.setPlayers(e.players);
             },
         );
 
@@ -56,7 +64,7 @@ export function useGameSocket() {
             store.setStartedAt(new Date(e.startedAt));
             store.setEndsAt(null);
             store.setMultiplier(1.0);
-            store.setPlayerCount(e.playerCount);
+            store.setPlayers(e.players);
         });
 
         socketService.on<RoundTickPayload>(SOCKET_EVENTS.ROUND_TICK, (e) => {
@@ -70,21 +78,25 @@ export function useGameSocket() {
             store.setPhase("crashed");
             store.setMultiplier(e.crashPoint);
             store.setCrashPoint(e.crashPoint);
+            store.setPlayers(e.players);
             store.setCrashFlash(true);
             setTimeout(
                 () => useGameStore.getState().setCrashFlash(false),
                 1500,
             );
 
-            queryClient.setQueryData<RecentRound[]>(
+            queryClient.setQueryData<RecentRoundsResponse>(
                 ["rounds", "recent"],
                 (prev) => {
                     const newRound: RecentRound = {
                         roundId: e.roundId,
                         crashPoint: e.crashPoint,
-                        startedAt: new Date().toISOString(),
+                        crashedAt: new Date().toISOString(),
+                        tier: e.tier as RoundTier,
                     };
-                    return [newRound, ...(prev ?? [])];
+                    return {
+                        rounds: [newRound, ...(prev?.rounds ?? [])],
+                    };
                 },
             );
         });
@@ -108,7 +120,6 @@ export function useGameSocket() {
                 store.setBalance(e.balance);
                 store.setMyBet(null);
                 store.setActionInFlight(false);
-                void queryClient.invalidateQueries({ queryKey: ["history"] });
             },
         );
 
@@ -117,7 +128,6 @@ export function useGameSocket() {
             store.setBalance(e.balance);
             store.setMyBet(null);
             store.setActionInFlight(false);
-            void queryClient.invalidateQueries({ queryKey: ["history"] });
         });
 
         socketService.on<BetRejectedPayload>(
@@ -125,6 +135,49 @@ export function useGameSocket() {
             (e) => {
                 useGameStore.getState().setActionInFlight(false);
                 console.warn("Bet rejected:", e.reason, e.message);
+            },
+        );
+
+        socketService.on<PlayersBetPayload>(SOCKET_EVENTS.PLAYERS_BET, (e) => {
+            const store = useGameStore.getState();
+            const newPlayer: PublicPlayer = {
+                username: e.username,
+                amount: e.amount,
+                status: "placed",
+                multiplier: null,
+            };
+            store.setPlayers([...store.players, newPlayer]);
+        });
+
+        socketService.on<PlayersCashoutPayload>(
+            SOCKET_EVENTS.PLAYERS_CASHOUT,
+            (e) => {
+                const store = useGameStore.getState();
+                store.setPlayers(
+                    store.players.map((p) =>
+                        p.username === e.username
+                            ? {
+                                  ...p,
+                                  status: "cashed_out",
+                                  multiplier: e.multiplier,
+                              }
+                            : p,
+                    ),
+                );
+            },
+        );
+
+        socketService.on<PlayersLostPayload>(
+            SOCKET_EVENTS.PLAYERS_LOST,
+            (e) => {
+                const store = useGameStore.getState();
+                store.setPlayers(
+                    store.players.map((p) =>
+                        p.username === e.username
+                            ? { ...p, status: "lost" }
+                            : p,
+                    ),
+                );
             },
         );
 
@@ -138,6 +191,9 @@ export function useGameSocket() {
             socketService.off(SOCKET_EVENTS.BET_CASHED_OUT);
             socketService.off(SOCKET_EVENTS.BET_LOST);
             socketService.off(SOCKET_EVENTS.BET_REJECTED);
+            socketService.off(SOCKET_EVENTS.PLAYERS_BET);
+            socketService.off(SOCKET_EVENTS.PLAYERS_CASHOUT);
+            socketService.off(SOCKET_EVENTS.PLAYERS_LOST);
         };
     }, [queryClient]);
 }

@@ -2,6 +2,8 @@ export type RoundPhase = "waiting" | "running" | "crashed";
 
 export type MyBetStatus = "placed" | "cashedOut" | "lost";
 
+export type RoundTier = "low" | "mid" | "high";
+
 export interface MyBet {
     betId: string;
     amount: number;
