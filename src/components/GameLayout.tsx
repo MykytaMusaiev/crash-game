@@ -37,7 +37,7 @@ export function GameLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <BetPanel />
         <div className="flex flex-1 flex-col min-w-0">
           <HistoryBar />
