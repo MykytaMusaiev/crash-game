@@ -140,13 +140,22 @@ export function useGameSocket() {
 
         socketService.on<PlayersBetPayload>(SOCKET_EVENTS.PLAYERS_BET, (e) => {
             const store = useGameStore.getState();
+            const exists = store.players.some((p) => p.username === e.username);
+
             const newPlayer: PublicPlayer = {
                 username: e.username,
                 amount: e.amount,
                 status: "placed",
                 multiplier: null,
             };
-            store.setPlayers([...store.players, newPlayer]);
+
+            store.setPlayers(
+                exists
+                    ? store.players.map((p) =>
+                          p.username === e.username ? newPlayer : p,
+                      )
+                    : [...store.players, newPlayer],
+            );
         });
 
         socketService.on<PlayersCashoutPayload>(
