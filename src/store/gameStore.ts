@@ -15,6 +15,7 @@ interface GameState {
     balance: number;
     actionInFlight: boolean;
     crashFlash: boolean;
+    connected: boolean;
     // Actions
     setPhase: (phase: RoundPhase) => void;
     setRoundId: (roundId: string) => void;
@@ -28,6 +29,7 @@ interface GameState {
     setBalance: (balance: number) => void;
     setActionInFlight: (value: boolean) => void;
     setCrashFlash: (value: boolean) => void;
+    setConnected: (value: boolean) => void;
     reset: () => void;
 }
 
@@ -44,6 +46,7 @@ const initialState = {
     balance: 0,
     actionInFlight: false,
     crashFlash: false,
+    connected: false,
 };
 
 export const useGameStore = create<GameState>((set) => ({
@@ -61,5 +64,6 @@ export const useGameStore = create<GameState>((set) => ({
     setBalance: (balance) => set({ balance }),
     setActionInFlight: (actionInFlight) => set({ actionInFlight }),
     setCrashFlash: (crashFlash) => set({ crashFlash }),
+    setConnected: (connected) => set({ connected }),
     reset: () => set(initialState),
 }));

@@ -30,6 +30,15 @@ export function useGameSocket() {
     const queryClient = useQueryClient();
 
     useEffect(() => {
+        const { setConnected } = useGameStore.getState();
+
+        // Connection state
+        socketService.on("connect", () => setConnected(true));
+        socketService.on("disconnect", () => setConnected(false));
+
+        // Sync initial state — socket may already be connected before this hook mounts
+        setConnected(socketService.isConnected());
+
         socketService.on<RoundStatePayload>(SOCKET_EVENTS.ROUND_STATE, (e) => {
             const store = useGameStore.getState();
             store.setPhase(e.phase);
@@ -191,6 +200,8 @@ export function useGameSocket() {
         );
 
         return () => {
+            socketService.off("connect");
+            socketService.off("disconnect");
             socketService.off(SOCKET_EVENTS.ROUND_STATE);
             socketService.off(SOCKET_EVENTS.ROUND_WAITING);
             socketService.off(SOCKET_EVENTS.ROUND_START);
