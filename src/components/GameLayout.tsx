@@ -24,7 +24,7 @@ export function GameLayout() {
     }
   }, [router])
 
-  // Connects the socket and 
+  // Connects the socket
   useInitApp()
 
   // Subscribes to all WS events and writes to the gameStore

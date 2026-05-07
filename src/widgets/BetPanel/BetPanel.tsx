@@ -15,6 +15,7 @@ import type { BetPlaceEmit } from '@/shared/types/socketTypes'
 import { QuickBetMultipliers } from '@/shared/ui/QuickBetMultipliers'
 import { clampAutoCashOut } from '@/shared/utils/clampAutoCashOut'
 import { cn } from '@/shared/lib/cn'
+import { getBetButtonState } from '@/shared/utils/getBetButtonState'
 
 interface BetPanelProps {
   className?: string
@@ -82,49 +83,10 @@ export function BetPanel({ className }: BetPanelProps) {
     socketService.emit(SOCKET_EVENTS.BET_CASHOUT)
   }, [canCashOut, setActionInFlight])
 
-  // ── Button UI Logic ──
-  const btn = useMemo(() => {
-    if (actionInFlight) {
-      return {
-        label: 'Waiting...',
-        disabled: true,
-        variant: 'secondary' as const,
-        className: 'animate-pulse opacity-50',
-      }
-    }
-    if (canCashOut) {
-      return {
-        label: 'Cash Out',
-        onClick: handleCashOut,
-        disabled: false,
-        variant: 'primary' as const,
-        className: '',
-      }
-    }
-    if (canPlaceBet) {
-      return {
-        label: 'Place Bet',
-        onClick: handlePlaceBet,
-        disabled: false,
-        variant: 'success' as const,
-        className: '',
-      }
-    }
-    if (phase === 'crashed' && hadBetThisRound) {
-      return {
-        label: `Crashed @ ${(crashPoint ?? 0).toFixed(2)}×`,
-        disabled: true,
-        variant: 'danger' as const,
-        className: '',
-      }
-    }
-    return {
-      label: 'Wait for next round',
-      disabled: true,
-      variant: 'secondary' as const,
-      className: '',
-    }
-  }, [actionInFlight, canCashOut, canPlaceBet, crashPoint, handleCashOut, handlePlaceBet, phase, hadBetThisRound])
+
+
+  const btn = getBetButtonState({ phase, myBet, actionInFlight, crashPoint, hadBetThisRound })
+  const btnOnClick = canCashOut ? handleCashOut : canPlaceBet ? handlePlaceBet : undefined
 
   return (
     <div className={cn(
@@ -188,7 +150,7 @@ export function BetPanel({ className }: BetPanelProps) {
       <Button
         variant={btn.variant}
         fullWidth
-        onClick={btn.onClick}
+        onClick={btnOnClick}
         disabled={btn.disabled}
         className={`rounded-xl py-3 text-sm ${btn.className}`}
       >

@@ -17,6 +17,7 @@ interface GameState {
     crashFlash: boolean;
     connected: boolean;
     hadBetThisRound: boolean;
+    username: string;
     // Actions
     setPhase: (phase: RoundPhase) => void;
     setRoundId: (roundId: string) => void;
@@ -32,6 +33,7 @@ interface GameState {
     setCrashFlash: (value: boolean) => void;
     setConnected: (value: boolean) => void;
     setHadBetThisRound: (value: boolean) => void;
+    setUsername: (username: string) => void;
     reset: () => void;
 }
 
@@ -50,6 +52,7 @@ const initialState = {
     crashFlash: false,
     connected: false,
     hadBetThisRound: false,
+    username: "",
 };
 
 export const useGameStore = create<GameState>((set) => ({
@@ -69,5 +72,6 @@ export const useGameStore = create<GameState>((set) => ({
     setCrashFlash: (crashFlash) => set({ crashFlash }),
     setConnected: (connected) => set({ connected }),
     setHadBetThisRound: (hadBetThisRound) => set({ hadBetThisRound }),
+    setUsername: (username) => set({ username }),
     reset: () => set(initialState),
 }));

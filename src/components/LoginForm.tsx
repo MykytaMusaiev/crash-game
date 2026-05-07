@@ -7,11 +7,13 @@ import { Button } from '@/shared/ui/Button'
 import { storage } from '@/shared/lib/storage'
 import { socketService } from '@/shared/api/socketService'
 import { APP_CONSTANTS } from '@/shared/constants/appConstants'
+import { useGameStore } from '@/store/gameStore'
 
 export function LoginForm() {
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [touched, setTouched] = useState(false)
+  const setStoreUsername = useGameStore((s) => s.setUsername)
 
   const isValid = username.length >= APP_CONSTANTS.MIN_USERNAME_LENGTH
   const showError = touched && !isValid
@@ -23,6 +25,7 @@ export function LoginForm() {
     // Save the username as an apiKey — it is used in the X-API-Key header
     // and in socket auth. Each tab stores its user separately.
     storage.setApiKey(username)
+    setStoreUsername(username)
 
     // Connect the socket immediately upon login.
     // useInitApp in GameLayout will also call connect — but it is idempotent,

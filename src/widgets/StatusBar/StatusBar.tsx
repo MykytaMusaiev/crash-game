@@ -5,7 +5,6 @@ import { useGameStore } from '@/store/gameStore'
 import { socketService } from '@/shared/api/socketService'
 import { storage } from '@/shared/lib/storage'
 import { User, LogOut, Volume2 } from 'lucide-react';
-import { useSyncExternalStore } from 'react'
 
 export function StatusBar() {
   const router = useRouter()
@@ -13,11 +12,7 @@ export function StatusBar() {
   const roundId = useGameStore((s) => s.roundId)
   const playerCount = useGameStore((s) => s.players.length)
 
-  const username = useSyncExternalStore(
-    () => () => { }, // no subscribe needed — localStorage doesn't change during session
-    () => storage.getApiKey() ?? '—', // client snapshot
-    () => '—', // server snapshot
-  )
+  const username = useGameStore((s) => s.username)
 
   const handleLogout = () => {
     storage.removeApiKey()
