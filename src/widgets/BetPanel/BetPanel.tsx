@@ -14,8 +14,13 @@ import { formatBalance } from '@/shared/utils/formatBalance'
 import type { BetPlaceEmit } from '@/shared/types/socketTypes'
 import { QuickBetMultipliers } from '@/shared/ui/QuickBetMultipliers'
 import { clampAutoCashOut } from '@/shared/utils/clampAutoCashOut'
+import { cn } from '@/shared/lib/cn'
 
-export function BetPanel() {
+interface BetPanelProps {
+  className?: string
+}
+
+export function BetPanel({ className }: BetPanelProps) {
   const phase = useGameStore((s) => s.phase)
   const myBet = useGameStore((s) => s.myBet)
   const balance = useGameStore((s) => s.balance)
@@ -122,7 +127,10 @@ export function BetPanel() {
   }, [actionInFlight, canCashOut, canPlaceBet, crashPoint, handleCashOut, handlePlaceBet, phase, hadBetThisRound])
 
   return (
-    <div className="flex flex-col gap-4 w-50 shrink-0 bg-bg-panel border-r border-border p-4">
+    <div className={cn(
+      'flex flex-col gap-4 w-full md:w-50 shrink-0 bg-bg-panel border-t border-border md:border-t-0 md:border-r p-4',
+      className,
+    )}>
       {/* ── Bet Amount ── */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-semibold uppercase tracking-widest text-text-secondary">

@@ -36,16 +36,23 @@ export function GameLayout() {
   useRecentRounds()
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="flex flex-1 min-h-0">
-        <BetPanel />
-        <div className="flex flex-1 flex-col min-w-0">
+    <div className="flex h-screen flex-col">
+      <div className="flex flex-1 min-h-0 flex-col md:flex-row">
+
+        <BetPanel className="order-2 md:order-1" />
+
+        <div className="order-1 md:order-2 flex flex-1 flex-col min-w-0 min-h-0">
           <HistoryBar />
           <CrashChart />
         </div>
-        <PlayersPanel />
+
+        <PlayersPanel className="order-3 hidden md:flex" />
+
       </div>
-      <StatusBar />
+
+      <div className="hidden md:block">
+        <StatusBar />
+      </div>
     </div>
   )
 }
