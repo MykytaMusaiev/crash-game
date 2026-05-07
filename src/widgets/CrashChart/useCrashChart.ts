@@ -114,7 +114,7 @@ export function useCrashChart(
     useEffect(() => {
         const unsub = useGameStore.subscribe((state, prev) => {
             if (state.phase === "waiting" && prev.phase !== "waiting") {
-                pointsRef.current = [];
+                pointsRef.current = [{ elapsedMs: 0, multiplier: 1.0 }];
             }
 
             if (
