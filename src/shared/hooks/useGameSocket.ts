@@ -61,6 +61,7 @@ export function useGameSocket() {
                 store.setStartedAt(null);
                 store.setMultiplier(1.0);
                 store.setCrashPoint(null);
+                store.setHadBetThisRound(false);
                 store.setMyBet(null);
                 store.setPlayers(e.players);
             },
@@ -127,6 +128,7 @@ export function useGameSocket() {
             (e) => {
                 const store = useGameStore.getState();
                 store.setBalance(e.balance);
+                store.setHadBetThisRound(true);
                 store.setMyBet(null);
                 store.setActionInFlight(false);
             },
@@ -135,6 +137,7 @@ export function useGameSocket() {
         socketService.on<BetLostPayload>(SOCKET_EVENTS.BET_LOST, (e) => {
             const store = useGameStore.getState();
             store.setBalance(e.balance);
+            store.setHadBetThisRound(true);
             store.setMyBet(null);
             store.setActionInFlight(false);
         });

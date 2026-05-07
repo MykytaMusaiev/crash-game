@@ -21,6 +21,8 @@ export function BetPanel() {
   const balance = useGameStore((s) => s.balance)
   const actionInFlight = useGameStore((s) => s.actionInFlight)
   const setActionInFlight = useGameStore((s) => s.setActionInFlight)
+  const crashPoint = useGameStore((s) => s.crashPoint)
+  const hadBetThisRound = useGameStore((s) => s.hadBetThisRound)
 
   const betAmount = useBetStore((s) => s.betAmount)
   const setBetAmount = useBetStore((s) => s.setBetAmount)
@@ -54,8 +56,7 @@ export function BetPanel() {
   const handleAutoCashOutChange = useCallback(
     (raw: string) => {
       const parsed = parseFloat(raw)
-      if (!isNaN(parsed))
-        setAutoCashOutAt(clampAutoCashOut(parsed))
+      if (!isNaN(parsed)) setAutoCashOutAt(clampAutoCashOut(parsed))
     },
     [setAutoCashOutAt],
   )
@@ -76,7 +77,7 @@ export function BetPanel() {
     socketService.emit(SOCKET_EVENTS.BET_CASHOUT)
   }, [canCashOut, setActionInFlight])
 
-  // ── Button UI Logic (Derived) ──
+  // ── Button UI Logic ──
   const btn = useMemo(() => {
     if (actionInFlight) {
       return {
@@ -104,13 +105,21 @@ export function BetPanel() {
         className: '',
       }
     }
+    if (phase === 'crashed' && hadBetThisRound) {
+      return {
+        label: `Crashed @ ${(crashPoint ?? 0).toFixed(2)}×`,
+        disabled: true,
+        variant: 'danger' as const,
+        className: '',
+      }
+    }
     return {
       label: 'Wait for next round',
       disabled: true,
       variant: 'secondary' as const,
       className: '',
     }
-  }, [actionInFlight, canCashOut, canPlaceBet, handleCashOut, handlePlaceBet])
+  }, [actionInFlight, canCashOut, canPlaceBet, crashPoint, handleCashOut, handlePlaceBet, phase, hadBetThisRound])
 
   return (
     <div className="flex flex-col gap-4 w-50 shrink-0 bg-bg-panel border-r border-border p-4">
@@ -129,7 +138,7 @@ export function BetPanel() {
           onChange={(e) => handleBetAmountChange(e.target.value)}
           disabled={inputsDisabled}
           suffix="USD"
-          wrapperClassName="focus-within:border-text-secondary rounded-lg px-3 py-2" // Чистий стиль[cite: 3]
+          wrapperClassName="focus-within:border-text-secondary rounded-lg px-3 py-2"
         />
 
         <QuickBetMultipliers
@@ -166,8 +175,6 @@ export function BetPanel() {
           />
         )}
       </div>
-
-      <div className="flex-1" />
 
       {/* ── Action Button ── */}
       <Button

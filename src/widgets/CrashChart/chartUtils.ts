@@ -12,7 +12,9 @@ export function calcMultiplier(elapsedMs: number): number {
 
 // Log scale Y — ln(1.0)=0, equal visual distance = equal relative growth
 export function toLogY(multiplier: number): number {
-    return Math.log(Math.max(multiplier, 1.0));
+    // TODO choose 1
+    // return Math.log(Math.max(multiplier, 1.0)); //log scale
+    return Math.pow(Math.max(multiplier - 1, 0), 0.5); // sqrt scale
 }
 
 export interface WorldBounds {
