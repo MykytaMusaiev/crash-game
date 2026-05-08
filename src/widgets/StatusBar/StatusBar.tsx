@@ -4,15 +4,18 @@ import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/store/gameStore'
 import { socketService } from '@/shared/api/socketService'
 import { storage } from '@/shared/lib/storage'
-import { User, LogOut, Volume2 } from 'lucide-react';
+import { User, LogOut, Users } from 'lucide-react'
 import { VolumeToggle } from './VolumeToggle'
 
-export function StatusBar() {
+interface StatusBarProps {
+  onPlayersClick?: () => void
+}
+
+export function StatusBar({ onPlayersClick }: StatusBarProps) {
   const router = useRouter()
   const connected = useGameStore((s) => s.connected)
   const roundId = useGameStore((s) => s.roundId)
   const playerCount = useGameStore((s) => s.players.length)
-
   const username = useGameStore((s) => s.username)
 
   const handleLogout = () => {
@@ -22,8 +25,8 @@ export function StatusBar() {
   }
 
   const roundLabel = roundId
-    ? `Round #${roundId.replace(/\D/g, '').slice(-4)}`
-    : 'Round —'
+    ? `R#${roundId.replace(/\D/g, '').slice(-4)}`
+    : 'R—'
 
   return (
     <div className="flex h-9 shrink-0 items-center justify-between border-t border-border bg-bg-secondary px-4">
@@ -35,11 +38,26 @@ export function StatusBar() {
             connected ? 'bg-accent-green' : 'bg-accent-red',
           ].join(' ')}
         />
-        <span>{connected ? 'Connected' : 'Disconnected'}</span>
-        <span className="text-border">·</span>
+        {/* Desktop: full labels */}
+        <span className="hidden md:inline">
+          {connected ? 'Connected' : 'Disconnected'}
+        </span>
+        <span className="hidden md:inline text-border">·</span>
         <span>{roundLabel}</span>
         <span className="text-border">·</span>
-        <span>{playerCount} players</span>
+
+        {/* Mobile: icon button that opens players modal */}
+        <button
+          onClick={onPlayersClick}
+          className="flex items-center gap-1 md:hidden hover:text-text-primary transition-colors"
+          aria-label="Show live players"
+        >
+          <Users size={13} />
+          <span>{playerCount}</span>
+        </button>
+
+        {/* Desktop: plain text */}
+        <span className="hidden md:inline">{playerCount} players</span>
       </div>
 
       {/* Right — username + logout */}
@@ -51,6 +69,7 @@ export function StatusBar() {
         <button
           onClick={handleLogout}
           className="text-text-secondary transition-colors hover:text-accent-red"
+          aria-label="Logout"
         >
           <LogOut size={14} />
         </button>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useInitApp } from '@/shared/hooks/useInitApp'
 import { useGameSocket } from '@/shared/hooks/useGameSocket'
@@ -15,8 +15,9 @@ import { useRecentRounds } from '@/shared/hooks/useRecentRounds'
 
 export function GameLayout() {
   const router = useRouter()
+  const [showPlayersModal, setShowPlayersModal] = useState(false)
 
-  // Protection of the route — if there is no apiKey >> to  login.
+  // Protection of the route — if there is no apiKey >> to login.
   // This is a client guard: we check localStorage immediately upon mounting.
   useEffect(() => {
     if (!storage.getApiKey()) {
@@ -32,7 +33,7 @@ export function GameLayout() {
 
   // gets the initial balance
   useBalance()
-  // gets recets rounds result
+  // gets recent rounds result
   useRecentRounds()
 
   return (
@@ -46,13 +47,32 @@ export function GameLayout() {
           <CrashChart />
         </div>
 
+        {/* Desktop: always visible sidebar */}
         <PlayersPanel className="order-3 hidden md:flex" />
 
       </div>
 
-      <div className="hidden md:block">
-        <StatusBar />
-      </div>
+      {/* StatusBar: hidden on mobile via md:hidden → now always visible */}
+      <StatusBar onPlayersClick={() => setShowPlayersModal(true)} />
+
+      {/* Mobile players modal overlay */}
+      {showPlayersModal && (
+        <div
+          className="fixed inset-0 z-50 md:hidden"
+          onClick={() => setShowPlayersModal(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+          {/* Panel — slides in from the right */}
+          <div
+            className="absolute right-0 top-0 h-full w-72 bg-bg-panel shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <PlayersPanel onClose={() => setShowPlayersModal(false)} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
