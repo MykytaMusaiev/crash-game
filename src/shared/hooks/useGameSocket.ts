@@ -25,6 +25,7 @@ import type {
 } from "@/shared/types/playerTypes";
 import type { RecentRound } from "@/shared/types/playerTypes";
 import type { RoundTier } from "@/shared/types/gameTypes";
+import { audioService } from "../api/audioService";
 
 export function useGameSocket() {
     const queryClient = useQueryClient();
@@ -34,7 +35,10 @@ export function useGameSocket() {
 
         // Connection state
         socketService.on("connect", () => setConnected(true));
-        socketService.on("disconnect", () => setConnected(false));
+        socketService.on("disconnect", () => {
+            setConnected(false);
+            audioService.play("disconnected"); // ← ADD
+        });
 
         // Sync initial state — socket may already be connected before this hook mounts
         setConnected(socketService.isConnected());
@@ -75,12 +79,14 @@ export function useGameSocket() {
             store.setEndsAt(null);
             store.setMultiplier(1.0);
             store.setPlayers(e.players);
+            audioService.play("start");
         });
 
         socketService.on<RoundTickPayload>(SOCKET_EVENTS.ROUND_TICK, (e) => {
             const store = useGameStore.getState();
             if (e.roundId !== store.roundId) return;
             store.setMultiplier(e.multiplier);
+            audioService.play("tick");
         });
 
         socketService.on<RoundCrashPayload>(SOCKET_EVENTS.ROUND_CRASH, (e) => {
@@ -90,6 +96,7 @@ export function useGameSocket() {
             store.setCrashPoint(e.crashPoint);
             store.setPlayers(e.players);
             store.setCrashFlash(true);
+            audioService.play("crash");
             setTimeout(
                 () => useGameStore.getState().setCrashFlash(false),
                 1500,
@@ -121,6 +128,7 @@ export function useGameSocket() {
             });
             store.setBalance(e.balance);
             store.setActionInFlight(false);
+            audioService.play("bet_placed");
         });
 
         socketService.on<BetCashedOutPayload>(
@@ -131,6 +139,7 @@ export function useGameSocket() {
                 store.setHadBetThisRound(true);
                 store.setMyBet(null);
                 store.setActionInFlight(false);
+                audioService.play("cashout");
             },
         );
 

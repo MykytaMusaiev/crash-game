@@ -5,6 +5,7 @@ import { useGameStore } from '@/store/gameStore'
 import { socketService } from '@/shared/api/socketService'
 import { storage } from '@/shared/lib/storage'
 import { User, LogOut, Volume2 } from 'lucide-react';
+import { VolumeToggle } from './VolumeToggle'
 
 export function StatusBar() {
   const router = useRouter()
@@ -53,9 +54,7 @@ export function StatusBar() {
         >
           <LogOut size={14} />
         </button>
-        <button className="text-text-secondary transition-colors hover:text-text-primary">
-          <Volume2 size={14} />
-        </button>
+        <VolumeToggle />
       </div>
     </div>
   )
