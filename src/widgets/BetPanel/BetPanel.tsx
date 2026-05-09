@@ -87,7 +87,7 @@ export function BetPanel({ className }: BetPanelProps) {
 
 
 
-  const btn = getBetButtonState({ phase, myBet, actionInFlight, crashPoint, hadBetThisRound, hadCashedOutThisRound, cashedOutWinAmount, })
+  const btn = getBetButtonState({ phase, myBet, actionInFlight, crashPoint, hadBetThisRound, hadCashedOutThisRound, cashedOutWinAmount, balance, })
   const btnOnClick = canCashOut ? handleCashOut : canPlaceBet ? handlePlaceBet : undefined
 
   return (

@@ -1,5 +1,5 @@
-import type { RoundPhase } from "@/shared/types/gameTypes";
-import type { MyBet } from "@/shared/types/gameTypes";
+import { APP_CONSTANTS } from "../constants/appConstants";
+import { MyBet, RoundPhase } from "../types/gameTypes";
 
 export interface BetButtonState {
     label: string;
@@ -16,6 +16,7 @@ export interface BetButtonParams {
     hadBetThisRound: boolean;
     hadCashedOutThisRound: boolean;
     cashedOutWinAmount: number | null;
+    balance: number;
 }
 
 export function getBetButtonState({
@@ -26,6 +27,7 @@ export function getBetButtonState({
     hadBetThisRound,
     hadCashedOutThisRound,
     cashedOutWinAmount,
+    balance,
 }: BetButtonParams): BetButtonState {
     if (actionInFlight) {
         return {
@@ -40,7 +42,7 @@ export function getBetButtonState({
             label: `Cashed Out ✓  +$${cashedOutWinAmount!.toFixed(2)}`,
             variant: "success",
             disabled: true,
-            className: "font-semibold",
+            className: "text-white font-semibold",
         };
     }
     if (phase === "running" && myBet?.status === "placed") {
@@ -51,19 +53,27 @@ export function getBetButtonState({
             className: "",
         };
     }
-    if (phase === "waiting" && myBet === null) {
-        return {
-            label: "Place Bet",
-            variant: "success",
-            disabled: false,
-            className: "",
-        };
-    }
     if (phase === "crashed" && hadBetThisRound) {
         return {
             label: `Crashed @ ${(crashPoint ?? 0).toFixed(2)}×`,
             variant: "danger",
             disabled: true,
+            className: "",
+        };
+    }
+    if (balance < APP_CONSTANTS.MIN_BET_AMOUNT) {
+        return {
+            label: "⚠ Insufficient Funds",
+            variant: "secondary",
+            disabled: true,
+            className: "",
+        };
+    }
+    if (phase === "waiting" && myBet === null) {
+        return {
+            label: "Place Bet",
+            variant: "success",
+            disabled: false,
             className: "",
         };
     }
