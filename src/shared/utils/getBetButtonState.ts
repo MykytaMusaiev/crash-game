@@ -14,6 +14,8 @@ export interface BetButtonParams {
     actionInFlight: boolean;
     crashPoint: number | null;
     hadBetThisRound: boolean;
+    hadCashedOutThisRound: boolean;
+    cashedOutWinAmount: number | null;
 }
 
 export function getBetButtonState({
@@ -22,6 +24,8 @@ export function getBetButtonState({
     actionInFlight,
     crashPoint,
     hadBetThisRound,
+    hadCashedOutThisRound,
+    cashedOutWinAmount,
 }: BetButtonParams): BetButtonState {
     if (actionInFlight) {
         return {
@@ -29,6 +33,14 @@ export function getBetButtonState({
             variant: "secondary",
             disabled: true,
             className: "animate-pulse opacity-50",
+        };
+    }
+    if (hadCashedOutThisRound) {
+        return {
+            label: `Cashed Out ✓  +$${cashedOutWinAmount!.toFixed(2)}`,
+            variant: "success",
+            disabled: true,
+            className: "font-semibold",
         };
     }
     if (phase === "running" && myBet?.status === "placed") {

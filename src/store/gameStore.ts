@@ -18,6 +18,8 @@ interface GameState {
     connected: boolean;
     hadBetThisRound: boolean;
     username: string;
+    hadCashedOutThisRound: boolean;
+    cashedOutWinAmount: number | null;
     // Actions
     setPhase: (phase: RoundPhase) => void;
     setRoundId: (roundId: string) => void;
@@ -34,6 +36,8 @@ interface GameState {
     setConnected: (value: boolean) => void;
     setHadBetThisRound: (value: boolean) => void;
     setUsername: (username: string) => void;
+    setHadCashedOutThisRound: (value: boolean) => void;
+    setCashedOutWinAmount: (value: number | null) => void;
     reset: () => void;
 }
 
@@ -53,6 +57,8 @@ const initialState = {
     connected: false,
     hadBetThisRound: false,
     username: "",
+    hadCashedOutThisRound: false,
+    cashedOutWinAmount: null,
 };
 
 export const useGameStore = create<GameState>((set) => ({
@@ -73,5 +79,8 @@ export const useGameStore = create<GameState>((set) => ({
     setConnected: (connected) => set({ connected }),
     setHadBetThisRound: (hadBetThisRound) => set({ hadBetThisRound }),
     setUsername: (username) => set({ username }),
+    setHadCashedOutThisRound: (hadCashedOutThisRound) =>
+        set({ hadCashedOutThisRound }),
+    setCashedOutWinAmount: (cashedOutWinAmount) => set({ cashedOutWinAmount }),
     reset: () => set(initialState),
 }));

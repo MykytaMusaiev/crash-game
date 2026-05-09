@@ -29,6 +29,8 @@ export function BetPanel({ className }: BetPanelProps) {
   const setActionInFlight = useGameStore((s) => s.setActionInFlight)
   const crashPoint = useGameStore((s) => s.crashPoint)
   const hadBetThisRound = useGameStore((s) => s.hadBetThisRound)
+  const hadCashedOutThisRound = useGameStore((s) => s.hadCashedOutThisRound)
+  const cashedOutWinAmount = useGameStore((s) => s.cashedOutWinAmount)
 
   const betAmount = useBetStore((s) => s.betAmount)
   const setBetAmount = useBetStore((s) => s.setBetAmount)
@@ -85,7 +87,7 @@ export function BetPanel({ className }: BetPanelProps) {
 
 
 
-  const btn = getBetButtonState({ phase, myBet, actionInFlight, crashPoint, hadBetThisRound })
+  const btn = getBetButtonState({ phase, myBet, actionInFlight, crashPoint, hadBetThisRound, hadCashedOutThisRound, cashedOutWinAmount, })
   const btnOnClick = canCashOut ? handleCashOut : canPlaceBet ? handlePlaceBet : undefined
 
   return (

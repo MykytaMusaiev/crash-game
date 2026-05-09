@@ -66,7 +66,9 @@ export function useGameSocket() {
                 store.setMultiplier(1.0);
                 store.setCrashPoint(null);
                 store.setHadBetThisRound(false);
+                store.setHadCashedOutThisRound(false);
                 store.setMyBet(null);
+                store.setCashedOutWinAmount(null);
                 store.setPlayers(e.players);
             },
         );
@@ -137,8 +139,10 @@ export function useGameSocket() {
                 const store = useGameStore.getState();
                 store.setBalance(e.balance);
                 store.setHadBetThisRound(true);
+                store.setHadCashedOutThisRound(true);
                 store.setMyBet(null);
                 store.setActionInFlight(false);
+                store.setCashedOutWinAmount(e.winAmount);
                 audioService.play("cashout");
             },
         );
