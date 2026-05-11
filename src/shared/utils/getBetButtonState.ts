@@ -61,6 +61,14 @@ export function getBetButtonState({
             className: "",
         };
     }
+    if (phase === "waiting" && myBet !== null) {
+        return {
+            label: "Waiting for start",
+            variant: "secondary",
+            disabled: true,
+            className: "",
+        };
+    }
     if (balance < APP_CONSTANTS.MIN_BET_AMOUNT) {
         return {
             label: "⚠ Insufficient Funds",
