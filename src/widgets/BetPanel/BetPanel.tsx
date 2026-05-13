@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
+import { Gift } from 'lucide-react'
 import { useGameStore } from '@/store/gameStore'
 import { useBetStore } from '@/store/betStore'
 import { socketService } from '@/shared/api/socketService'
@@ -16,6 +17,7 @@ import { QuickBetMultipliers } from '@/shared/ui/QuickBetMultipliers'
 import { clampAutoCashOut } from '@/shared/utils/clampAutoCashOut'
 import { cn } from '@/shared/lib/cn'
 import { getBetButtonState } from '@/shared/utils/getBetButtonState'
+import { useClaimBonus } from '@/shared/hooks/useClaimBonus'
 
 interface BetPanelProps {
   className?: string
@@ -38,6 +40,8 @@ export function BetPanel({ className }: BetPanelProps) {
   const setAutoCashOutAt = useBetStore((s) => s.setAutoCashOutAt)
   const autoCashOutEnabled = useBetStore((s) => s.autoCashOutEnabled)
   const setAutoCashOutEnabled = useBetStore((s) => s.setAutoCashOutEnabled)
+
+  const { mutate: claimBonus, isPending: bonusLoading } = useClaimBonus()
 
   // ── Derived state ──
   const canPlaceBet = phase === 'waiting' && myBet === null && !actionInFlight
@@ -85,16 +89,25 @@ export function BetPanel({ className }: BetPanelProps) {
     socketService.emit(SOCKET_EVENTS.BET_CASHOUT)
   }, [canCashOut, setActionInFlight])
 
-
-
-  const btn = getBetButtonState({ phase, myBet, actionInFlight, crashPoint, hadBetThisRound, hadCashedOutThisRound, cashedOutWinAmount, balance, })
+  const btn = getBetButtonState({
+    phase,
+    myBet,
+    actionInFlight,
+    crashPoint,
+    hadBetThisRound,
+    hadCashedOutThisRound,
+    cashedOutWinAmount,
+    balance,
+  })
   const btnOnClick = canCashOut ? handleCashOut : canPlaceBet ? handlePlaceBet : undefined
 
   return (
-    <div className={cn(
-      'flex flex-col gap-4 w-full md:w-50 shrink-0 bg-bg-panel border-t border-border md:border-t-0 md:border-r p-4',
-      className,
-    )}>
+    <div
+      className={cn(
+        'flex flex-col gap-4 w-full md:w-50 shrink-0 bg-bg-panel border-t border-border md:border-t-0 md:border-r p-4',
+        className,
+      )}
+    >
       {/* ── Bet Amount ── */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-semibold uppercase tracking-widest text-text-secondary">
@@ -113,10 +126,7 @@ export function BetPanel({ className }: BetPanelProps) {
           wrapperClassName="focus-within:border-text-secondary rounded-lg px-3 py-2"
         />
 
-        <QuickBetMultipliers
-          onAdjust={handleAdjustBet}
-          disabled={inputsDisabled}
-        />
+        <QuickBetMultipliers onAdjust={handleAdjustBet} disabled={inputsDisabled} />
       </div>
 
       {/* ── Auto Cash Out ── */}
@@ -157,6 +167,18 @@ export function BetPanel({ className }: BetPanelProps) {
         className={`rounded-xl py-3 text-sm ${btn.className}`}
       >
         {btn.label}
+      </Button>
+
+      {/* ── Claim Bonus Button ── */}
+      <Button
+        variant="gradient"
+        fullWidth
+        onClick={() => claimBonus()}
+        disabled={bonusLoading}
+        className="rounded-xl py-3 text-xs gap-2"
+      >
+        <Gift size={15} className="shrink-0" />
+        {bonusLoading ? 'Claiming...' : 'Claim Bonus +100'}
       </Button>
 
       {/* ── Balance ── */}
