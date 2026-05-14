@@ -1,10 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useInitApp } from '@/shared/hooks/useInitApp'
 import { useGameSocket } from '@/shared/hooks/useGameSocket'
-import { storage } from '@/shared/lib/storage'
 import { BetPanel } from '@/widgets/BetPanel/BetPanel'
 import { CrashChart } from '@/widgets/CrashChart/CrashChart'
 import { PlayersPanel } from '@/widgets/PlayersPanel/PlayersPanel'
@@ -14,16 +12,7 @@ import { useBalance } from '@/shared/hooks/useBalance'
 import { useRecentRounds } from '@/shared/hooks/useRecentRounds'
 
 export function GameLayout() {
-  const router = useRouter()
   const [showPlayersModal, setShowPlayersModal] = useState(false)
-
-  // Protection of the route — if there is no apiKey >> to login.
-  // This is a client guard: we check localStorage immediately upon mounting.
-  useEffect(() => {
-    if (!storage.getApiKey()) {
-      router.replace('/')
-    }
-  }, [router])
 
   // Connects the socket
   useInitApp()

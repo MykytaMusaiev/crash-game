@@ -1,19 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Input } from '@/shared/ui/Input'
 import { Button } from '@/shared/ui/Button'
 import { storage } from '@/shared/lib/storage'
-import { socketService } from '@/shared/api/socketService'
 import { APP_CONSTANTS } from '@/shared/constants/appConstants'
-import { useGameStore } from '@/store/gameStore'
 
 export function LoginForm() {
-  const router = useRouter()
   const [username, setUsername] = useState('')
   const [touched, setTouched] = useState(false)
-  const setStoreUsername = useGameStore((s) => s.setUsername)
+
+  const [rememberMe, setRememberMe] = useState(false)
 
   const isValid = username.length >= APP_CONSTANTS.MIN_USERNAME_LENGTH
   const showError = touched && !isValid
@@ -22,17 +19,9 @@ export function LoginForm() {
     setTouched(true)
     if (!isValid) return
 
-    // Save the username as an apiKey — it is used in the X-API-Key header
-    // and in socket auth. Each tab stores its user separately.
-    storage.setApiKey(username)
-    setStoreUsername(username)
+    storage.setApiKey(username, rememberMe)
 
-    // Connect the socket immediately upon login.
-    // useInitApp in GameLayout will also call connect — but it is idempotent,
-    // so calling again won't break anything.
-    socketService.connect(username)
-
-    router.push('/game')
+    window.location.replace('/game')
   }
 
   return (
@@ -69,6 +58,15 @@ export function LoginForm() {
             autoComplete="off"
             autoFocus
           />
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-text-secondary">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 accent-accent-gold"
+            />
+            Remember me
+          </label>
           <Button fullWidth onClick={handleSubmit}>
             Enter Game
           </Button>
