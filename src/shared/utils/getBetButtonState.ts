@@ -17,6 +17,7 @@ export interface BetButtonParams {
     hadCashedOutThisRound: boolean;
     cashedOutWinAmount: number | null;
     balance: number;
+    multiplier: number;
 }
 
 export function getBetButtonState({
@@ -28,6 +29,7 @@ export function getBetButtonState({
     hadCashedOutThisRound,
     cashedOutWinAmount,
     balance,
+    multiplier,
 }: BetButtonParams): BetButtonState {
     if (actionInFlight) {
         return {
@@ -47,7 +49,7 @@ export function getBetButtonState({
     }
     if (phase === "running" && myBet?.status === "placed") {
         return {
-            label: "Cash Out",
+            label: `Cash Out +$${(myBet.amount * multiplier).toFixed(2)}`,
             variant: "primary",
             disabled: false,
             className: "",

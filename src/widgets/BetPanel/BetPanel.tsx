@@ -18,6 +18,7 @@ import { clampAutoCashOut } from '@/shared/utils/clampAutoCashOut'
 import { cn } from '@/shared/lib/cn'
 import { getBetButtonState } from '@/shared/utils/getBetButtonState'
 import { useClaimBonus } from '@/shared/hooks/useClaimBonus'
+import { BetActionButton } from './BetActionButton'
 
 interface BetPanelProps {
   className?: string
@@ -29,10 +30,6 @@ export function BetPanel({ className }: BetPanelProps) {
   const balance = useGameStore((s) => s.balance)
   const actionInFlight = useGameStore((s) => s.actionInFlight)
   const setActionInFlight = useGameStore((s) => s.setActionInFlight)
-  const crashPoint = useGameStore((s) => s.crashPoint)
-  const hadBetThisRound = useGameStore((s) => s.hadBetThisRound)
-  const hadCashedOutThisRound = useGameStore((s) => s.hadCashedOutThisRound)
-  const cashedOutWinAmount = useGameStore((s) => s.cashedOutWinAmount)
 
   const betAmount = useBetStore((s) => s.betAmount)
   const setBetAmount = useBetStore((s) => s.setBetAmount)
@@ -89,17 +86,7 @@ export function BetPanel({ className }: BetPanelProps) {
     socketService.emit(SOCKET_EVENTS.BET_CASHOUT)
   }, [canCashOut, setActionInFlight])
 
-  const btn = getBetButtonState({
-    phase,
-    myBet,
-    actionInFlight,
-    crashPoint,
-    hadBetThisRound,
-    hadCashedOutThisRound,
-    cashedOutWinAmount,
-    balance,
-  })
-  const btnOnClick = canCashOut ? handleCashOut : canPlaceBet ? handlePlaceBet : undefined
+
 
   return (
     <div
@@ -159,15 +146,10 @@ export function BetPanel({ className }: BetPanelProps) {
       </div>
 
       {/* ── Action Button ── */}
-      <Button
-        variant={btn.variant}
-        fullWidth
-        onClick={btnOnClick}
-        disabled={btn.disabled}
-        className={`rounded-xl py-3 text-sm ${btn.className}`}
-      >
-        {btn.label}
-      </Button>
+      <BetActionButton
+        onPlaceBet={handlePlaceBet}
+        onCashOut={handleCashOut}
+      />
 
       {/* ── Claim Bonus Button ── */}
       <Button
