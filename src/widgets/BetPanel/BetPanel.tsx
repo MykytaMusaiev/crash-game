@@ -16,7 +16,6 @@ import type { BetPlaceEmit } from '@/shared/types/socketTypes'
 import { QuickBetMultipliers } from '@/shared/ui/QuickBetMultipliers'
 import { clampAutoCashOut } from '@/shared/utils/clampAutoCashOut'
 import { cn } from '@/shared/lib/cn'
-import { getBetButtonState } from '@/shared/utils/getBetButtonState'
 import { useClaimBonus } from '@/shared/hooks/useClaimBonus'
 import { BetActionButton } from './BetActionButton'
 
@@ -91,7 +90,7 @@ export function BetPanel({ className }: BetPanelProps) {
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 w-full md:w-50 shrink-0 bg-bg-panel border-t border-border md:border-t-0 md:border-r p-4',
+        'flex w-full shrink-0 flex-col gap-4 rounded-xl border border-border bg-bg-panel p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] md:w-50 h-fit md:self-start',
         className,
       )}
     >

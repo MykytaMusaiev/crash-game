@@ -29,7 +29,7 @@ export function PlayerRow({ player }: { player: PublicPlayer }) {
           {player.username}
         </span>
         <span className="text-xs text-text-secondary">
-          {player.amount} USD
+          {player.amount || '-'} USD
         </span>
       </div>
       <div className={`shrink-0 text-sm font-semibold ${STATUS_CLASSES[player.status]}`}>

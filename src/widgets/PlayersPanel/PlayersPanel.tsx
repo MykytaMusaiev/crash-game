@@ -16,13 +16,15 @@ export function PlayersPanel({ className, onClose }: PlayersPanelProps) {
   const isModal = Boolean(onClose)
 
   return (
-    <div className={cn(
-      'flex flex-col border-border bg-bg-panel',
-      isModal
-        ? 'w-full h-full'
-        : 'w-64 shrink-0 border-l',
-      className,
-    )}>
+    <div
+      className={cn(
+        'flex flex-col border-border bg-bg-panel',
+        isModal
+          ? 'h-full w-full'
+          : 'h-fit self-start w-64 shrink-0 overflow-hidden rounded-xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ',
+        className,
+      )}
+    >
       {/* Header */}
       <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
         {isModal && <Users size={14} className="text-text-secondary" />}

@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-    --color-bg-primary: #0e0e18;
+    --color-bg-primary: #07080f;
     --color-bg-secondary: #161624;
-    --color-bg-panel: #1a1a2e;
+    --color-bg-panel: #10111b;
     --color-bg-muted: #4a5568;
     --color-accent-gold: #f0b429;
     --color-accent-green: #22c55e;
@@ -22,4 +22,24 @@ body {
     color: var(--color-text-primary);
     font-family: "Inter", system-ui, sans-serif;
     margin: 0;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
