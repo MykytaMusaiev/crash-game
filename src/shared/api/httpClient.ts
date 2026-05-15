@@ -1,27 +1,32 @@
 import { APP_CONSTANTS } from "@/shared/constants/appConstants";
-import { storage } from "@/shared/lib/storage";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
-interface RequestOptions {
+const API_KEY_HEADER = "X-API-Key";
+
+interface AuthRequestOptions {
+    apiKey: string;
+}
+
+interface RequestOptions extends AuthRequestOptions {
     method?: HttpMethod;
     body?: unknown;
 }
 
-async function request<T>(
-    path: string,
-    options: RequestOptions = {},
-): Promise<T> {
-    const apiKey = storage.getApiKey();
-    if (!apiKey) throw new Error("No API key found");
+async function request<T>(path: string, options: RequestOptions): Promise<T> {
+    const { apiKey, method = "GET", body } = options;
+
+    if (!apiKey) {
+        throw new Error("No API key provided");
+    }
 
     const response = await fetch(`${APP_CONSTANTS.API_BASE_URL}${path}`, {
-        method: options.method ?? "GET",
+        method,
         headers: {
             "Content-Type": "application/json",
-            "X-API-Key": apiKey,
+            [API_KEY_HEADER]: apiKey,
         },
-        body: options.body ? JSON.stringify(options.body) : undefined,
+        body: body === undefined ? undefined : JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -32,7 +37,9 @@ async function request<T>(
 }
 
 export const httpClient = {
-    get: <T>(path: string) => request<T>(path),
-    post: <T>(path: string, body: unknown) =>
-        request<T>(path, { method: "POST", body }),
+    get: <T>(path: string, options: AuthRequestOptions) =>
+        request<T>(path, options),
+
+    post: <T>(path: string, body: unknown, options: AuthRequestOptions) =>
+        request<T>(path, { ...options, method: "POST", body }),
 };

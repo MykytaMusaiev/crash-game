@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { httpClient } from "@/shared/api/httpClient";
+import { getCurrentGameInstanceAuth } from "@/shared/lib/currentGameInstanceAuth";
 import { useGameStore } from "@/store/gameStore";
 import type { BalanceResponse } from "@/shared/types/playerTypes";
 
@@ -20,12 +21,20 @@ export function useClaimBonus() {
     const setBalance = useGameStore((s) => s.setBalance);
 
     return useMutation({
-        mutationFn: () =>
-            httpClient.post<ClaimBonusResponse>("/api/bonus/claim", {}),
+        mutationFn: () => {
+            const { apiKey } = getCurrentGameInstanceAuth();
+
+            return httpClient.post<ClaimBonusResponse>(
+                "/api/bonus/claim",
+                {},
+                { apiKey },
+            );
+        },
         onSuccess: (data) => {
             queryClient.setQueryData<BalanceResponse>(["balance"], {
                 balance: data.balance,
             });
+
             setBalance(data.balance);
         },
     });
