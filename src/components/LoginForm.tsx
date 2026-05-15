@@ -5,11 +5,14 @@ import { Input } from '@/shared/ui/Input'
 import { Button } from '@/shared/ui/Button'
 import { storage } from '@/shared/lib/storage'
 import { APP_CONSTANTS } from '@/shared/constants/appConstants'
+import {
+  createGameInstanceId,
+  createGameUrl,
+} from '@/shared/lib/gameInstance'
 
 export function LoginForm() {
   const [username, setUsername] = useState('')
   const [touched, setTouched] = useState(false)
-
   const [rememberMe, setRememberMe] = useState(false)
 
   const isValid = username.length >= APP_CONSTANTS.MIN_USERNAME_LENGTH
@@ -19,15 +22,23 @@ export function LoginForm() {
     setTouched(true)
     if (!isValid) return
 
-    storage.setApiKey(username, rememberMe)
+    const instanceId = createGameInstanceId()
 
-    window.location.replace('/game')
+    storage.removeLegacyApiKey()
+    storage.setInstanceApiKey(instanceId, username, rememberMe)
+
+    if (rememberMe) {
+      storage.setRememberedInstanceId(instanceId)
+    } else {
+      storage.removeRememberedInstanceId()
+    }
+
+    window.location.replace(createGameUrl(instanceId))
   }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-primary">
       <div className="w-full max-w-sm rounded-xl border border-border bg-bg-panel p-8">
-
         {/* Logo and title */}
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-bg-secondary text-2xl">
@@ -54,10 +65,15 @@ export function LoginForm() {
             onChange={(e) => setUsername(e.target.value)}
             onBlur={() => setTouched(true)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            error={showError ? `Minimum ${APP_CONSTANTS.MIN_USERNAME_LENGTH} characters required` : undefined}
+            error={
+              showError
+                ? `Minimum ${APP_CONSTANTS.MIN_USERNAME_LENGTH} characters required`
+                : undefined
+            }
             autoComplete="off"
             autoFocus
           />
+
           <label className="flex cursor-pointer items-center gap-2 text-sm text-text-secondary">
             <input
               type="checkbox"
@@ -67,6 +83,7 @@ export function LoginForm() {
             />
             Remember me
           </label>
+
           <Button fullWidth onClick={handleSubmit}>
             Enter Game
           </Button>
@@ -76,7 +93,6 @@ export function LoginForm() {
         <p className="mt-6 text-center text-xs text-text-secondary">
           Demo mode • Play responsibly
         </p>
-
       </div>
     </div>
   )

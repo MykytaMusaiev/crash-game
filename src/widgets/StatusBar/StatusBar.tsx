@@ -1,9 +1,12 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/store/gameStore'
 import { socketService } from '@/shared/api/socketService'
 import { storage } from '@/shared/lib/storage'
+import {
+  GAME_INSTANCE_SEARCH_PARAM,
+  isValidGameInstanceId,
+} from '@/shared/lib/gameInstance'
 import { User, LogOut, Users } from 'lucide-react'
 import { VolumeToggle } from './VolumeToggle'
 
@@ -12,16 +15,28 @@ interface StatusBarProps {
 }
 
 export function StatusBar({ onPlayersClick }: StatusBarProps) {
-  const router = useRouter()
   const connected = useGameStore((s) => s.connected)
   const roundId = useGameStore((s) => s.roundId)
   const playerCount = useGameStore((s) => s.players.length)
   const username = useGameStore((s) => s.username)
 
   const handleLogout = () => {
-    storage.removeApiKey()
+    const searchParams = new URLSearchParams(window.location.search)
+    const instanceId = searchParams.get(GAME_INSTANCE_SEARCH_PARAM)
+
+    if (isValidGameInstanceId(instanceId)) {
+      storage.removeInstanceApiKey(instanceId)
+
+      const rememberedInstanceId = storage.getRememberedInstanceId()
+
+      if (rememberedInstanceId === instanceId) {
+        storage.removeRememberedInstanceId()
+      }
+    }
+
+    storage.removeLegacyApiKey()
     socketService.disconnect()
-    router.push('/')
+    window.location.replace('/')
   }
 
   const roundLabel = roundId
