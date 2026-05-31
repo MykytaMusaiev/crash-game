@@ -71,21 +71,29 @@ export function BetPanel({ className }: BetPanelProps) {
 
   const handlePlaceBet = useCallback(() => {
     if (!canPlaceBet) return
+    // Guard against a manually typed amount exceeding the current balance.
+    // The button disables when balance < MIN_BET, but the user can still
+    // type an arbitrary value into the input while the field is enabled.
+    if (betAmount > balance) return
+
     setActionInFlight(true)
     const payload: BetPlaceEmit = {
       amount: betAmount,
       autoCashOutAt: autoCashOutEnabled ? autoCashOutAt : null,
     }
-    socketService.emit<BetPlaceEmit>(SOCKET_EVENTS.BET_PLACE, payload)
-  }, [canPlaceBet, betAmount, autoCashOutEnabled, autoCashOutAt, setActionInFlight])
+    // emit() returns false when the socket is disconnected.  Roll back the
+    // optimistic flag immediately so the UI doesn't stay stuck in a waiting
+    // state waiting for a server acknowledgement that will never arrive.
+    const emitted = socketService.emit<BetPlaceEmit>(SOCKET_EVENTS.BET_PLACE, payload)
+    if (!emitted) setActionInFlight(false)
+  }, [canPlaceBet, betAmount, balance, autoCashOutEnabled, autoCashOutAt, setActionInFlight])
 
   const handleCashOut = useCallback(() => {
     if (!canCashOut) return
     setActionInFlight(true)
-    socketService.emit(SOCKET_EVENTS.BET_CASHOUT)
+    const emitted = socketService.emit(SOCKET_EVENTS.BET_CASHOUT)
+    if (!emitted) setActionInFlight(false)
   }, [canCashOut, setActionInFlight])
-
-
 
   return (
     <div

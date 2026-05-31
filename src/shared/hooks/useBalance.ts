@@ -9,11 +9,14 @@ import type { BalanceResponse } from "@/shared/types/playerTypes";
 export function useBalance() {
     const setBalance = useGameStore((s) => s.setBalance);
 
-    return useQuery<BalanceResponse>({
-        queryKey: ["balance"],
-        queryFn: async () => {
-            const { apiKey } = getCurrentGameInstanceAuth();
+    // Resolved outside queryFn so it can be included in the query key.
+    // With staleTime: Infinity a global key like ["balance"] would serve
+    // a cached value from a different game instance when the apiKey changes.
+    const { apiKey } = getCurrentGameInstanceAuth();
 
+    return useQuery<BalanceResponse>({
+        queryKey: ["balance", apiKey],
+        queryFn: async () => {
             const data = await httpClient.get<BalanceResponse>("/api/balance", {
                 apiKey,
             });
